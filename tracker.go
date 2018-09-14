@@ -9,6 +9,7 @@ import (
 	"math/rand"
 	"net/http"
 	"net/smtp"
+	"strings"
 	"time"
 )
 
@@ -22,7 +23,7 @@ var IDS = map[string]*Data{}
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	http.HandleFunc("/track", trackHandler)
+	http.HandleFunc("/track/", trackHandler)
 	http.HandleFunc("/new", newHandler)
 	http.HandleFunc("/info", infoHandler)
 	http.HandleFunc("/", formHandler)
@@ -34,7 +35,10 @@ func main() {
 }
 
 func trackHandler(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	url := r.URL.EscapedPath()
+	aurl := strings.Split(url, "/")
+	id := aurl[len(aurl)-1]
+	id = strings.Replace(id, ".png", "", 1)
 	IDS[id].Check = time.Now()
 	w.Header().Set("Content-Type", "image/png")
 	sendEmail("kidandcat@gmail.com", "jairo@galax.be", IDS[id].Title+" to "+IDS[id].Dest+" --- "+IDS[id].Check.Format("_2 Monday January 15:04:05 2006"))
@@ -116,7 +120,7 @@ func newHandler(w http.ResponseWriter, r *http.Request) {
 		Dest:  r.Form["dest"][0],
 	}
 	w.Header().Set("Content-Type", "text/plain")
-	w.Write([]byte("https://track.galax.be/track?id=" + id))
+	w.Write([]byte("https://track.galax.be/track/" + id + ".png"))
 }
 
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
