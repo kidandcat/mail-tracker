@@ -40,6 +40,7 @@ func trackHandler(w http.ResponseWriter, r *http.Request) {
 	id := aurl[len(aurl)-1]
 	id = strings.Replace(id, ".png", "", 1)
 	IDS[id].Check = time.Now()
+	w.Header().Set("Cache-control", "private, max-age=0, no-cache")
 	w.Header().Set("Content-Type", "image/png")
 	sendEmail("kidandcat@gmail.com", "jairo@galax.be", IDS[id].Title+" to "+IDS[id].Dest+" --- "+IDS[id].Check.Format("_2 Monday January 15:04:05 2006"))
 	// 1x1 PNG
